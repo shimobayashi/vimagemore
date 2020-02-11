@@ -23,6 +23,9 @@ Resources:
           Properties:
             Path: /upload
             Method: post
+      Environment:
+        Variables:
+          VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucketName
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
