@@ -6,12 +6,14 @@
   "author": "shimobayashi",
   "license": "MIT",
   "dependencies": {
+    "@types/chai": "^4.2.8",
+    "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.0",
     "axios": "^0.18.0",
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "build": "tsc ./app.ts",
+    "build": "tsc",
     "test": "npm run build && mocha tests/unit/"
   },
   "devDependencies": {
