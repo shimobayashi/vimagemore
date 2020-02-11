@@ -35,14 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 function lambdaHandler(event, context) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, {
                     'statusCode': 200,
                     'body': JSON.stringify({
-                        message: 'hello world'
+                        message: 'hello world',
                     })
                 }];
         });
