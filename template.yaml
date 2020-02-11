@@ -26,6 +26,9 @@ Resources:
       Environment:
         Variables:
           VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucketName
+      Policies:
+        - S3FullAccessPolicy
+          BucketName: !Ref VimagemoreBucketName
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
