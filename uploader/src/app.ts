@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 
-export async function lambdaHandler (event:any, context:any, callback:Function) {
+export function lambdaHandler (event:any, context:any, callback:Function) {
     /* 画像データをS3へ配置する */
     // 参考: https://docs.aws.amazon.com/ja_jp/sdk-for-javascript/v2/developer-guide/using-promises.html
     // 参考: https://qiita.com/niusounds/items/9be50e9d8538db052275

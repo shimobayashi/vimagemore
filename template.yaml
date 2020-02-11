@@ -25,26 +25,21 @@ Resources:
             Method: post
       Environment:
         Variables:
-          VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucketName
+          VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucket
+          VIMAGEMORE_BUCKET_URL: !GetAtt VimagemoreBucket.WebsiteURL
       Policies:
-        - S3FullAccessPolicy
-          BucketName: !Ref VimagemoreBucketName
+        - S3FullAccessPolicy:
+            BucketName: !Ref VimagemoreBucket
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref VimagemoreBucketName
-      AccessControl: private # 個別にACLでpublic-readを付与する想定
+      AccessControl: LogDeliveryWrite # 個別にACLでpublic-readを付与する想定
       BucketEncryption:
         ServerSideEncryptionConfiguration:
         - ServerSideEncryptionByDefault:
             SSEAlgorithm: AES256
       LoggingConfiguration:
-        LogFilePrefix: log/
-
-
-Parameters:
-  VimagemoreBucketName:
-    Type: String
+        LogFilePrefix: logs/
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
