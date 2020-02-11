@@ -23,6 +23,22 @@ Resources:
           Properties:
             Path: /upload
             Method: post
+  VimagemoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref VimagemoreBucketName
+      AccessControl: private # 個別にACLでpublic-readを付与する想定
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      LoggingConfiguration:
+        LogFilePrefix: log/
+
+
+Parameters:
+  VimagemoreBucketName:
+    Type: String
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
