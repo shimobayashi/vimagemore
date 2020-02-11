@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && mocha tests/unit/"
+    "test": "npm run build && mocha dst/tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.2.0",
