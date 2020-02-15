@@ -7,15 +7,9 @@ export async function lambdaHandler (event:any) {
     // 参考: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-handler-async
     // 参考: https://docs.aws.amazon.com/ja_jp/sdk-for-javascript/v2/developer-guide/using-promises.html
     // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
-    return (new Promise((resolve) => {
-        // とにかくすべての処理をthenの中に入れることでエラーハンドリングを共通化したかったので、
-        // 無意味なPromiseをつくってresolveしている
-        resolve();
-    })).then(async() => {
-        const json = JSON.parse(event.body);
-        const image = Buffer.from(json.image, 'base64');
-
-        const filetype = await FileType.fromBuffer(image);
+    const json = JSON.parse(event.body);
+    const image = Buffer.from(json.image, 'base64');
+    return FileType.fromBuffer(image).then((filetype) => {
         if (filetype === undefined) {
             throw new Error('filetype is not detected');
         }
@@ -28,7 +22,7 @@ export async function lambdaHandler (event:any) {
             ACL: 'public-read',
         };
         const s3 = new AWS.S3();
-        return s3.putObject(params).promise()
+        return s3.putObject(params).promise();
     }).then((data) => {
         /* メタデータをDynamoDBへ記録する */
         //XXX
