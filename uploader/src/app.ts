@@ -2,13 +2,12 @@ import AWS from 'aws-sdk';
 import FileType from 'file-type';
 import uuid from 'uuid';
 
-//XXX asyncにしてPromise返すほうが良い気がする https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html
-export function lambdaHandler (event:any, context:any, callback:Function) {
+export async function lambdaHandler (event:any) {
     /* 画像データをS3へ配置する */
+    // 参考: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-handler-async
     // 参考: https://docs.aws.amazon.com/ja_jp/sdk-for-javascript/v2/developer-guide/using-promises.html
-    // 参考: https://qiita.com/niusounds/items/9be50e9d8538db052275
     // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
-    (new Promise((resolve) => {
+    return (new Promise((resolve) => {
         // とにかくすべての処理をthenの中に入れることでエラーハンドリングを共通化したかったので、
         // 無意味なPromiseをつくってresolveしている
         resolve();
@@ -31,25 +30,7 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
         const s3 = new AWS.S3();
         return s3.putObject(params).promise()
     }).then((data) => {
-        console.log('Success', data);
-
         /* メタデータをDynamoDBへ記録する */
         //XXX
-
-        callback(null, {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'Succeed!',
-            })
-        });
-    }).catch((err:Error) => {
-        console.log('Error', err);
-
-        callback(err, {
-            'statusCode': 400, // 大体リクエストがおかしいので400で良いと思ってるけど、たまにサーバーサイドがおかしいこともあるはずなので本当ならいい感じに500と出し分けたい。と思ったけど、errを渡しているとクライアントにはInternal server errorとしか返らないので意味がない？
-            'body': JSON.stringify({
-                message: err.message,
-            })
-        });
     });
 }

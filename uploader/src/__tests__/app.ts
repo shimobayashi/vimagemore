@@ -22,30 +22,7 @@ describe('Tests index', () => {
         process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
     });
 
-    test('event.body is empty', done => {
-        const callback:Function = (err:any, result:any) => {
-            try {
-                expect(err).toEqual(expect.any(Error));
-
-                expect(result).toEqual(expect.any(Object));
-                expect(result.statusCode).toBe(400);
-                expect(result.body).toEqual(expect.any(String));
-
-                let response = JSON.parse(result.body);
-
-                expect(response).toEqual(expect.any(Object));
-                expect(response.message).toEqual(expect.any(String));
-
-                done();
-            } catch (error) {
-                done(error);
-            }
-        };
-
-        app.lambdaHandler({}, {}, callback);
-    });
-
-    test('verifies successful response', done => {
+    test('verifies successful response', () => {
         mockS3PutObject.mockImplementation((params) => {
             return {
                 promise() {
@@ -59,37 +36,18 @@ describe('Tests index', () => {
             image: image.toString('base64'),
         };
 
-        const callback:Function = (err:any, result:any) => {
-            try {
-                expect(err).toEqual(null);
-
-                expect(mockS3PutObject.mock.calls).toEqual([
-                    [{
-                        Bucket: 'vimagemore_test_bucket',
-                        Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
-                        ContentType: 'image/png',
-                        Body: image,
-                        ACL: 'public-read',
-                    }]
-                ]);
-
-                expect(result).toEqual(expect.any(Object));
-                expect(result.statusCode).toBe(200);
-                expect(result.body).toEqual(expect.any(String));
-
-                let response = JSON.parse(result.body);
-
-                expect(response).toEqual(expect.any(Object));
-                expect(response.message).toMatch("Succeed!");
-
-                done();
-            } catch (error) {
-                done(error);
-            }
-        };
-
         app.lambdaHandler({
             body: JSON.stringify(event_body),
-        }, {}, callback);
+        }).then(() => {
+            expect(mockS3PutObject.mock.calls).toEqual([
+                [{
+                    Bucket: 'vimagemore_test_bucket',
+                    Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
+                    ContentType: 'image/png',
+                    Body: image,
+                    ACL: 'public-read',
+                }]
+            ]);
+        });
     });
 });
