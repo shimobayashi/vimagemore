@@ -32,7 +32,7 @@ describe('Tests index', () => {
                 let response = JSON.parse(result.body);
 
                 expect(response).toEqual(expect.any(Object));
-                expect(response.message).toMatch(expect.any(String));
+                expect(response.message).toEqual(expect.any(String));
 
                 done();
             } catch (error) {

@@ -3,15 +3,19 @@ import FileType from 'file-type';
 import uuid from 'uuid';
 
 export function lambdaHandler (event:any, context:any, callback:Function) {
-    const json = JSON.parse(event.body);
-
     /* 画像データをS3へ配置する */
     // 参考: https://docs.aws.amazon.com/ja_jp/sdk-for-javascript/v2/developer-guide/using-promises.html
     // 参考: https://qiita.com/niusounds/items/9be50e9d8538db052275
     // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
-    const s3 = new AWS.S3();
-    const image = Buffer.from(json.image, 'base64');
-    FileType.fromBuffer(image).then((filetype) => {
+    (new Promise((resolve) => {
+        // とにかくすべての処理をthenの中に入れることでエラーハンドリングを共通化したかったので、
+        // 無意味なPromiseをつくってresolveしている
+        resolve();
+    })).then(async() => {
+        const json = JSON.parse(event.body);
+        const image = Buffer.from(json.image, 'base64');
+
+        const filetype = await FileType.fromBuffer(image);
         if (filetype === undefined) {
             throw new Error('filetype is not detected');
         }
@@ -23,6 +27,7 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
             Body: image,
             ACL: 'public-read',
         };
+        const s3 = new AWS.S3();
         return s3.putObject(params).promise()
     }).then((data) => {
         console.log('Success', data);
@@ -36,13 +41,13 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
                 message: 'Succeed!',
             })
         });
-    }).catch((err) => {
+    }).catch((err:Error) => {
         console.log('Error', err);
 
         callback(err, {
             'statusCode': 500,
             'body': JSON.stringify({
-                message: err,
+                message: err.message,
             })
         });
     });
