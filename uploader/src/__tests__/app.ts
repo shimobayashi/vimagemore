@@ -25,6 +25,8 @@ describe('Tests index', () => {
     test('event.body is empty', done => {
         const callback:Function = (err:any, result:any) => {
             try {
+                expect(err).toEqual(expect.any(Error));
+
                 expect(result).toEqual(expect.any(Object));
                 expect(result.statusCode).toBe(400);
                 expect(result.body).toEqual(expect.any(String));
@@ -59,6 +61,8 @@ describe('Tests index', () => {
 
         const callback:Function = (err:any, result:any) => {
             try {
+                expect(err).toEqual(null);
+
                 expect(mockS3PutObject.mock.calls).toEqual([
                     [{
                         Bucket: 'vimagemore_test_bucket',

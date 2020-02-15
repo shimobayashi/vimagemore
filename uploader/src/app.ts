@@ -2,6 +2,7 @@ import AWS from 'aws-sdk';
 import FileType from 'file-type';
 import uuid from 'uuid';
 
+//XXX asyncにしてPromise返すほうが良い気がする https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html
 export function lambdaHandler (event:any, context:any, callback:Function) {
     /* 画像データをS3へ配置する */
     // 参考: https://docs.aws.amazon.com/ja_jp/sdk-for-javascript/v2/developer-guide/using-promises.html
@@ -45,7 +46,7 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
         console.log('Error', err);
 
         callback(err, {
-            'statusCode': 400, // 大体リクエストがおかしいので400で良いと思ってるけど、たまにサーバーサイドがおかしいこともあるはずなので本当ならいい感じに500と出し分けたい
+            'statusCode': 400, // 大体リクエストがおかしいので400で良いと思ってるけど、たまにサーバーサイドがおかしいこともあるはずなので本当ならいい感じに500と出し分けたい。と思ったけど、errを渡しているとクライアントにはInternal server errorとしか返らないので意味がない？
             'body': JSON.stringify({
                 message: err.message,
             })
