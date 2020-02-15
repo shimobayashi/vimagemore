@@ -23,27 +23,27 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
             ContentType: filetype.mime,
             Body: image,
         };
-        s3.putObject(params).promise().then((data) => {
-            console.log('Success', data);
+        return s3.putObject(params).promise()
+    }).then((data) => {
+        console.log('Success', data);
 
-            /* メタデータをDynamoDBへ記録する */
-            //XXX
+        /* メタデータをDynamoDBへ記録する */
+        //XXX
 
-            callback(null, {
-                'statusCode': 200,
-                'body': JSON.stringify({
-                    message: 'Succeed!',
-                })
-            });
-        }).catch((err) => {
-            console.log('Error', err);
+        callback(null, {
+            'statusCode': 200,
+            'body': JSON.stringify({
+                message: 'Succeed!',
+            })
+        });
+    }).catch((err) => {
+        console.log('Error', err);
 
-            callback(err, {
-                'statusCode': 500,
-                'body': JSON.stringify({
-                    message: err,
-                })
-            });
+        callback(err, {
+            'statusCode': 500,
+            'body': JSON.stringify({
+                message: err,
+            })
         });
     });
 }

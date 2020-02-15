@@ -46,6 +46,7 @@ describe('Tests index', () => {
                         Body: image,
                     }]
                 ]);
+
                 expect(result).toEqual(expect.any(Object));
                 expect(result.statusCode).toBe(200);
                 expect(result.body).toEqual(expect.any(String));
