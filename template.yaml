@@ -33,7 +33,7 @@ Resources:
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: LogDeliveryWrite # 個別にACLでpublic-readを付与する想定
+      AccessControl: LogDeliveryWrite # ログの出力先も兼ねたりするため、個別にACLでpublic-readを付与する想定
       BucketEncryption:
         ServerSideEncryptionConfiguration:
         - ServerSideEncryptionByDefault:

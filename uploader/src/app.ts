@@ -16,12 +16,12 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
             throw new Error('filetype is not detected');
         }
 
-        //XXX 投稿した画像はpublic-readにする
         const params:AWS.S3.Types.PutObjectRequest = {
             Bucket: process.env.VIMAGEMORE_BUCKET_NAME || '',
             Key: `images/${uuid.v4()}.${filetype.ext}`,
             ContentType: filetype.mime,
             Body: image,
+            ACL: 'public-read',
         };
         return s3.putObject(params).promise()
     }).then((data) => {

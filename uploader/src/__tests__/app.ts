@@ -44,6 +44,7 @@ describe('Tests index', () => {
                         Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
                         ContentType: 'image/png',
                         Body: image,
+                        ACL: 'public-read',
                     }]
                 ]);
 
