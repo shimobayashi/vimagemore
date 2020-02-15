@@ -45,7 +45,7 @@ export function lambdaHandler (event:any, context:any, callback:Function) {
         console.log('Error', err);
 
         callback(err, {
-            'statusCode': 500,
+            'statusCode': 400, // 大体リクエストがおかしいので400で良いと思ってるけど、たまにサーバーサイドがおかしいこともあるはずなので本当ならいい感じに500と出し分けたい
             'body': JSON.stringify({
                 message: err.message,
             })

@@ -26,7 +26,7 @@ describe('Tests index', () => {
         const callback:Function = (err:any, result:any) => {
             try {
                 expect(result).toEqual(expect.any(Object));
-                expect(result.statusCode).toBe(500);
+                expect(result.statusCode).toBe(400);
                 expect(result.body).toEqual(expect.any(String));
 
                 let response = JSON.parse(result.body);
