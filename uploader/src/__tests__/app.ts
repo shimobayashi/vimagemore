@@ -22,6 +22,27 @@ describe('Tests index', () => {
         process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
     });
 
+    test('event.body is empty', done => {
+        const callback:Function = (err:any, result:any) => {
+            try {
+                expect(result).toEqual(expect.any(Object));
+                expect(result.statusCode).toBe(500);
+                expect(result.body).toEqual(expect.any(String));
+
+                let response = JSON.parse(result.body);
+
+                expect(response).toEqual(expect.any(Object));
+                expect(response.message).toMatch(expect.any(String));
+
+                done();
+            } catch (error) {
+                done(error);
+            }
+        };
+
+        app.lambdaHandler({}, {}, callback);
+    });
+
     test('verifies successful response', done => {
         mockS3PutObject.mockImplementation((params) => {
             return {
