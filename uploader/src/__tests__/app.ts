@@ -22,7 +22,7 @@ describe('Tests index', () => {
         process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
     });
 
-    test('verifies successful response', () => {
+    test('verifies successful response', done => {
         mockS3PutObject.mockImplementation((params) => {
             return {
                 promise() {
@@ -36,18 +36,30 @@ describe('Tests index', () => {
             image: image.toString('base64'),
         };
 
+        const callback = (error:Error, response:any) => {
+            try {
+                expect(error).toEqual(null);
+                expect(response).toEqual({
+                    statusCode: 200,
+                });
+                expect(mockS3PutObject.mock.calls).toEqual([
+                    [{
+                        Bucket: 'vimagemore_test_bucket',
+                        Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
+                        ContentType: 'image/png',
+                        Body: image,
+                        ACL: 'public-read',
+                    }]
+                ]);
+
+                done();
+            } catch(error) {
+                done(error);
+            }
+        }
+
         app.lambdaHandler({
             body: JSON.stringify(event_body),
-        }).then(() => {
-            expect(mockS3PutObject.mock.calls).toEqual([
-                [{
-                    Bucket: 'vimagemore_test_bucket',
-                    Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
-                    ContentType: 'image/png',
-                    Body: image,
-                    ACL: 'public-read',
-                }]
-            ]);
-        });
+        }, {}, callback);
     });
 });
