@@ -49,13 +49,12 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Key
           AttributeType: S
-        - AttributeName: CreatedAt
-          AttributeType: N
-        - AttributeName: UpdatedAt
-          AttributeType: N
       KeySchema:
         - AttributeName: Key
           KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
