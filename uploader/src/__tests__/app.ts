@@ -79,6 +79,7 @@ describe('Tests index', () => {
                     ACL: 'public-read',
                 }]
             ]);
+            expect(mockDynamoDBPut.mock.calls[0][0].Item.Key).toEqual(mockS3PutObject.mock.calls[0][0].Key);
         });
     });
 });
