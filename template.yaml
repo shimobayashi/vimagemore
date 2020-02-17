@@ -27,9 +27,12 @@ Resources:
         Variables:
           VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucket
           VIMAGEMORE_BUCKET_URL: !GetAtt VimagemoreBucket.WebsiteURL
+          IMAGE_TABLE_NAME: !Ref ImageTable
       Policies:
         - S3FullAccessPolicy:
-            BucketName: !Ref VimagemoreBucket
+          BucketName: !Ref VimagemoreBucket
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ImageTable
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -40,6 +43,19 @@ Resources:
             SSEAlgorithm: AES256
       LoggingConfiguration:
         LogFilePrefix: logs/
+  ImageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Key
+          AttributeType: S
+        - AttributeName: CreatedAt
+          AttributeType: N
+        - AttributeName: UpdatedAt
+          AttributeType: N
+      KeySchema:
+        - AttributeName: Key
+          KeyType: HASH
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

@@ -5,24 +5,43 @@ import * as app from '../app';
 // 参考: https://github.com/aws/aws-sdk-js/issues/1963#issuecomment-508210959
 // 参考: https://jestjs.io/docs/ja/tutorial-async
 const mockS3PutObject = jest.fn();
+const mockDynamoDBPut = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
         S3: () => {
             return {
                 putObject: mockS3PutObject,
-            }
+            };
+        },
+        DynamoDB: {
+            DocumentClient: () => {
+                return {
+                    put: mockDynamoDBPut,
+                };
+            },
         },
     };
 });
+// 参考: https://jestjs.io/docs/ja/snapshot-testing#2-tests-should-be-deterministic
+Date.now = jest.fn(() => 1482363367071);
 
 describe('Tests index', () => {
     beforeEach(() => {
         mockS3PutObject.mockReset();
+        mockDynamoDBPut.mockReset();
         process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
+        process.env.IMAGE_TABLE_NAME = 'Image';
     });
 
     test('verifies successful response', () => {
         mockS3PutObject.mockImplementation((params) => {
+            return {
+                promise() {
+                    return Promise.resolve();
+                }
+            };
+        });
+        mockDynamoDBPut.mockImplementation((params) => {
             return {
                 promise() {
                     return Promise.resolve();
@@ -41,6 +60,16 @@ describe('Tests index', () => {
             expect(response).toEqual({
                 statusCode: 200,
             });
+            expect(mockDynamoDBPut.mock.calls).toEqual([
+                [{
+                    TableName: 'Image',
+                    Item: {
+                        Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
+                        CreatedAt: 1482363367,
+                        UpdatedAt: 1482363367,
+                    },
+                }]
+            ]);
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
                     Bucket: 'vimagemore_test_bucket',
