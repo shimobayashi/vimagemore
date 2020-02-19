@@ -51,6 +51,7 @@ describe('Tests index', () => {
 
         const image = fs.readFileSync('./src/__tests__/150x150.png');
         const event_body = {
+            key: 'test_key',
             image: image.toString('base64'),
         };
 
@@ -64,16 +65,21 @@ describe('Tests index', () => {
                 [{
                     TableName: 'Image',
                     Item: {
-                        Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
+                        Key: expect.stringMatching('images/test_key.png'),
                         CreatedAt: 1482363367,
                         UpdatedAt: 1482363367,
+                    },
+                    Expected: {
+                        Key: {
+                            Exists: false,
+                        },
                     },
                 }]
             ]);
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
                     Bucket: 'vimagemore_test_bucket',
-                    Key: expect.stringMatching(/^images\/[\w\-]+?\.png$/),
+                    Key: expect.stringMatching('images/test_key.png'),
                     ContentType: 'image/png',
                     Body: image,
                     ACL: 'public-read',

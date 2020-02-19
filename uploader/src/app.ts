@@ -1,9 +1,11 @@
 import AWS from 'aws-sdk';
 import FileType from 'file-type';
-import uuid from 'uuid';
 
 export async function lambdaHandler (event:any) {
     const json = JSON.parse(event.body);
+    if (!json.key) {
+        throw new Error('json.key is not found');
+    }
     const image = Buffer.from(json.image, 'base64');
     var key = '';
     return FileType.fromBuffer(image).then((filetype) => {
@@ -14,7 +16,7 @@ export async function lambdaHandler (event:any) {
         /* 画像データをS3へ配置する */
         // 参考: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-handler-async
         // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
-        key = `images/${uuid.v4()}.${filetype.ext}`;
+        key = `images/${json.key}.${filetype.ext}`;
         const params:AWS.S3.Types.PutObjectRequest = {
             Bucket: process.env.VIMAGEMORE_BUCKET_NAME ?? '',
             Key: key,
@@ -29,6 +31,7 @@ export async function lambdaHandler (event:any) {
         // 参考: https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.03.html#GettingStarted.NodeJs.03.01
         const docClient = new AWS.DynamoDB.DocumentClient();
         const epoch = Math.floor(Date.now() / 1000);
+        //TODO ConditionalCheckFailedExceptionが返ってきたら500以外を返したいような気がする
         return docClient.put({
             TableName: process.env.IMAGE_TABLE_NAME ?? '',
             Item: {
@@ -36,11 +39,17 @@ export async function lambdaHandler (event:any) {
                 CreatedAt: epoch,
                 UpdatedAt: epoch,
             },
+            //XXX DynamoDBへの記録を先にやって失敗させた方が無駄なS3へのputが減って良さそう
+            Expected: {
+                Key: {
+                    Exists: false,
+                },
+            },
         }).promise();
     }).then(() => {
         return {
             statusCode: 200,
         };
     });
-    //XXX catchしてS3とDynamoDBからデータ消すようにしたら丁寧な気がする
+    //TODO catchしてS3とDynamoDBからデータ消すようにしたら丁寧な気がする
 }
