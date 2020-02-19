@@ -2,10 +2,11 @@ import AWS from 'aws-sdk';
 import FileType from 'file-type';
 
 export async function lambdaHandler (event:any) {
-    const json = JSON.parse(event.body);
-    if (!json.key) {
-        throw new Error('json.key is not found');
-    }
+    const json: {
+        id: string;
+        title: string;
+        image: string;
+    } = JSON.parse(event.body);
     const image = Buffer.from(json.image, 'base64');
 
     var path = '';
@@ -14,7 +15,7 @@ export async function lambdaHandler (event:any) {
         if (filetype === undefined) {
             throw new Error('filetype is not detected');
         }
-        path = `images/${json.key}.${filetype.ext}`;
+        path = `images/${json.id}.${filetype.ext}`;
         contentType = filetype.mime;
 
         /* メタデータをDynamoDBへ記録する */
@@ -25,14 +26,14 @@ export async function lambdaHandler (event:any) {
         return docClient.put({
             TableName: process.env.IMAGE_TABLE_NAME ?? '',
             Item: {
-                Key: json.key,
+                Id: json.id,
                 Path: path,
                 Title: json.title,
                 CreatedAt: epoch,
                 UpdatedAt: epoch,
             },
             Expected: {
-                Key: {
+                Id: {
                     Exists: false,
                 },
             },

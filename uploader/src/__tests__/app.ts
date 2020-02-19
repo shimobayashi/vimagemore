@@ -51,7 +51,7 @@ describe('Tests index', () => {
 
         const image = fs.readFileSync('./src/__tests__/150x150.png');
         const event_body = {
-            key: 'test_key',
+            id: 'test_id',
             title: 'test title',
             image: image.toString('base64'),
         };
@@ -66,14 +66,14 @@ describe('Tests index', () => {
                 [{
                     TableName: 'Image',
                     Item: {
-                        Key: 'test_key',
-                        Path: 'images/test_key.png',
+                        Id: 'test_id',
+                        Path: 'images/test_id.png',
                         Title: 'test title',
                         CreatedAt: 1482363367,
                         UpdatedAt: 1482363367,
                     },
                     Expected: {
-                        Key: {
+                        Id: {
                             Exists: false,
                         },
                     },
@@ -82,7 +82,7 @@ describe('Tests index', () => {
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
                     Bucket: 'vimagemore_test_bucket',
-                    Key: 'images/test_key.png',
+                    Key: 'images/test_id.png',
                     ContentType: 'image/png',
                     Body: image,
                     ACL: 'public-read',
