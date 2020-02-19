@@ -16,7 +16,7 @@ export async function lambdaHandler (event:any) {
         // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
         key = `images/${uuid.v4()}.${filetype.ext}`;
         const params:AWS.S3.Types.PutObjectRequest = {
-            Bucket: process.env.VIMAGEMORE_BUCKET_NAME || '',
+            Bucket: process.env.VIMAGEMORE_BUCKET_NAME ?? '',
             Key: key,
             ContentType: filetype.mime,
             Body: image,
@@ -30,7 +30,7 @@ export async function lambdaHandler (event:any) {
         const docClient = new AWS.DynamoDB.DocumentClient();
         const epoch = Math.floor(Date.now() / 1000);
         return docClient.put({
-            TableName: process.env.IMAGE_TABLE_NAME || '',
+            TableName: process.env.IMAGE_TABLE_NAME ?? '',
             Item: {
                 Key: key,
                 CreatedAt: epoch,
