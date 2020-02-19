@@ -26,6 +26,7 @@ export async function lambdaHandler (event:any) {
             TableName: process.env.IMAGE_TABLE_NAME ?? '',
             Item: {
                 Key: key,
+                Title: json.title,
                 CreatedAt: epoch,
                 UpdatedAt: epoch,
             },

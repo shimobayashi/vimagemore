@@ -52,6 +52,7 @@ describe('Tests index', () => {
         const image = fs.readFileSync('./src/__tests__/150x150.png');
         const event_body = {
             key: 'test_key',
+            title: 'test title',
             image: image.toString('base64'),
         };
 
@@ -66,6 +67,7 @@ describe('Tests index', () => {
                     TableName: 'Image',
                     Item: {
                         Key: expect.stringMatching('images/test_key.png'),
+                        Title: 'test title',
                         CreatedAt: 1482363367,
                         UpdatedAt: 1482363367,
                     },
