@@ -8,13 +8,13 @@ export async function lambdaHandler (event:any) {
     }
     const image = Buffer.from(json.image, 'base64');
 
-    var key = '';
+    var path = '';
     var contentType = '';
     return FileType.fromBuffer(image).then((filetype) => {
         if (filetype === undefined) {
             throw new Error('filetype is not detected');
         }
-        key = `images/${json.key}.${filetype.ext}`;
+        path = `images/${json.key}.${filetype.ext}`;
         contentType = filetype.mime;
 
         /* メタデータをDynamoDBへ記録する */
@@ -25,7 +25,8 @@ export async function lambdaHandler (event:any) {
         return docClient.put({
             TableName: process.env.IMAGE_TABLE_NAME ?? '',
             Item: {
-                Key: key,
+                Key: json.key,
+                Path: path,
                 Title: json.title,
                 CreatedAt: epoch,
                 UpdatedAt: epoch,
@@ -42,7 +43,7 @@ export async function lambdaHandler (event:any) {
         // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
         const params:AWS.S3.Types.PutObjectRequest = {
             Bucket: process.env.VIMAGEMORE_BUCKET_NAME ?? '',
-            Key: key,
+            Key: path,
             ContentType: contentType,
             Body: image,
             ACL: 'public-read',

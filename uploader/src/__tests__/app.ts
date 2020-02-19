@@ -56,7 +56,7 @@ describe('Tests index', () => {
             image: image.toString('base64'),
         };
 
-        app.lambdaHandler({
+        return app.lambdaHandler({
             body: JSON.stringify(event_body),
         }).then((response) => {
             expect(response).toEqual({
@@ -66,7 +66,8 @@ describe('Tests index', () => {
                 [{
                     TableName: 'Image',
                     Item: {
-                        Key: expect.stringMatching('images/test_key.png'),
+                        Key: 'test_key',
+                        Path: 'images/test_key.png',
                         Title: 'test title',
                         CreatedAt: 1482363367,
                         UpdatedAt: 1482363367,
@@ -81,13 +82,12 @@ describe('Tests index', () => {
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
                     Bucket: 'vimagemore_test_bucket',
-                    Key: expect.stringMatching('images/test_key.png'),
+                    Key: 'images/test_key.png',
                     ContentType: 'image/png',
                     Body: image,
                     ACL: 'public-read',
                 }]
             ]);
-            expect(mockDynamoDBPut.mock.calls[0][0].Item.Key).toEqual(mockS3PutObject.mock.calls[0][0].Key);
         });
     });
 });
