@@ -9,6 +9,7 @@ const image = fs.readFileSync(imageFilePath);
 axios.post(process.argv[2], {
     id: imageFilePath,
     title: imageFilePath,
+    tags: ['test tag 1', 'test tag 2'],
     image: image.toString('base64'),
 }).then((ret) => {
     console.log('Success', ret);

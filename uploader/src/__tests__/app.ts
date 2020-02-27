@@ -6,6 +6,7 @@ import * as app from '../app';
 // 参考: https://jestjs.io/docs/ja/tutorial-async
 const mockS3PutObject = jest.fn();
 const mockDynamoDBPut = jest.fn();
+const mockDynamoDBUpdate = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
         S3: () => {
@@ -17,6 +18,7 @@ jest.mock('aws-sdk', () => {
             DocumentClient: () => {
                 return {
                     put: mockDynamoDBPut,
+                    update: mockDynamoDBUpdate,
                 };
             },
         },
@@ -31,6 +33,7 @@ describe('Tests index', () => {
         mockDynamoDBPut.mockReset();
         process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
         process.env.IMAGE_TABLE_NAME = 'Image';
+        process.env.IMAGE_TAG_TABLE_NAME = 'ImageTag';
     });
 
     test('verifies successful response', () => {
@@ -48,11 +51,19 @@ describe('Tests index', () => {
                 }
             };
         });
+        mockDynamoDBUpdate.mockImplementation((params) => {
+            return {
+                promise() {
+                    return Promise.resolve();
+                }
+            };
+        });
 
         const image = fs.readFileSync('./src/__tests__/150x150.png');
         const event_body = {
             id: 'test_id',
             title: 'test title',
+            tags: ['test tag 1', 'test tag 2'],
             image: image.toString('base64'),
         };
 
@@ -63,22 +74,55 @@ describe('Tests index', () => {
                 statusCode: 200,
             });
             expect(mockDynamoDBPut.mock.calls).toEqual([
-                [{
-                    TableName: 'Image',
-                    Item: {
-                        Id: 'test_id',
-                        Path: 'images/test_id.png',
-                        Title: 'test title',
-                        CreatedAt: 1482363367,
-                        UpdatedAt: 1482363367,
-                    },
-                    Expected: {
-                        Id: {
-                            Exists: false,
+                [
+                    {
+                        TableName: 'Image',
+                        Item: {
+                            Id: 'test_id',
+                            Path: 'images/test_id.png',
+                            Title: 'test title',
+                            Tags: ['test tag 1', 'test tag 2'],
+                            CreatedAt: 1482363367,
+                            UpdatedAt: 1482363367,
+                        },
+                        Expected: {
+                            Id: {
+                                Exists: false,
+                            },
                         },
                     },
-                }]
+                ],
             ]);
+            expect(mockDynamoDBUpdate.mock.calls).toEqual([
+                [
+                    {
+                        TableName: 'ImageTag',
+                        Key: {
+                            Id: 'test tag 1',
+                        },
+                        UpdateExpression: 'SET Images = list_append(if_not_exists(Images, :emptyList), :taggedImages)',
+                        ExpressionAttributeValues: {
+                            ':emptyList': [],
+                            ':taggedImages': ['test_id'],
+                        },
+                        ReturnValues: 'NONE',
+                    },
+                ],
+                [
+                    {
+                        TableName: 'ImageTag',
+                        Key: {
+                            Id: 'test tag 2',
+                        },
+                        UpdateExpression: 'SET Images = list_append(if_not_exists(Images, :emptyList), :taggedImages)',
+                        ExpressionAttributeValues: {
+                            ':emptyList': [],
+                            ':taggedImages': ['test_id'],
+                        },
+                        ReturnValues: 'NONE',
+                    },
+                ],
+            ])
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
                     Bucket: 'vimagemore_test_bucket',

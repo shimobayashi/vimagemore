@@ -28,11 +28,14 @@ Resources:
           VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucket
           VIMAGEMORE_BUCKET_URL: !GetAtt VimagemoreBucket.WebsiteURL
           IMAGE_TABLE_NAME: !Ref ImageTable
+          IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
       Policies:
         - S3FullAccessPolicy:
             BucketName: !Ref VimagemoreBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ImageTagTable
   VimagemoreBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -47,10 +50,22 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: Key
+        - AttributeName: Id
           AttributeType: S
       KeySchema:
-        - AttributeName: Key
+        - AttributeName: Id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  ImageTagTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
