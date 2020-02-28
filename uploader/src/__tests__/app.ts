@@ -31,7 +31,7 @@ describe('Tests index', () => {
     beforeEach(() => {
         mockS3PutObject.mockReset();
         mockDynamoDBPut.mockReset();
-        process.env.VIMAGEMORE_BUCKET_NAME = 'vimagemore_test_bucket';
+        process.env.IMAGE_BUCKET_NAME = 'vimagemore_test_bucket';
         process.env.IMAGE_TABLE_NAME = 'Image';
         process.env.IMAGE_TAG_TABLE_NAME = 'ImageTag';
     });

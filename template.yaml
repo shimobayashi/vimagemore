@@ -25,18 +25,18 @@ Resources:
             Method: post
       Environment:
         Variables:
-          VIMAGEMORE_BUCKET_NAME: !Ref VimagemoreBucket
-          VIMAGEMORE_BUCKET_URL: !GetAtt VimagemoreBucket.WebsiteURL
+          IMAGE_BUCKET_NAME: !Ref ImageBucket
+          IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
       Policies:
         - S3FullAccessPolicy:
-            BucketName: !Ref VimagemoreBucket
+            BucketName: !Ref ImageBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTagTable
-  VimagemoreBucket:
+  ImageBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: LogDeliveryWrite # ログの出力先も兼ねたりするため、個別にACLでpublic-readを付与する想定

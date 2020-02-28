@@ -51,6 +51,7 @@ export async function lambdaHandler (event:any) {
                     Key: {
                         Id: tag,
                     },
+                    // 新しいtaggedImagesが末尾に追加されていくので、最新順で取得したければImages.reverseみたいな感じで取れるはず
                     UpdateExpression: 'SET Images = list_append(if_not_exists(Images, :emptyList), :taggedImages)',
                     ExpressionAttributeValues: {
                         ':emptyList': [],
@@ -65,7 +66,7 @@ export async function lambdaHandler (event:any) {
         // 参考: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-handler-async
         // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
         const params:AWS.S3.Types.PutObjectRequest = {
-            Bucket: process.env.VIMAGEMORE_BUCKET_NAME ?? '',
+            Bucket: process.env.IMAGE_BUCKET_NAME ?? '',
             Key: path,
             ContentType: contentType,
             Body: image,
