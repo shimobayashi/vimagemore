@@ -25,18 +25,18 @@ Resources:
             Method: post
       Environment:
         Variables:
-          IMAGE_BUCKET_NAME: !Ref ImageBucket
-          IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
+          BUCKET_NAME: !Ref Bucket
+          BUCKET_URL: !GetAtt Bucket.WebsiteURL
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
       Policies:
         - S3FullAccessPolicy:
-            BucketName: !Ref ImageBucket
+            BucketName: !Ref Bucket
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTagTable
-  ImageBucket:
+  Bucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: LogDeliveryWrite # ログの出力先も兼ねたりするため、個別にACLでpublic-readを付与する想定

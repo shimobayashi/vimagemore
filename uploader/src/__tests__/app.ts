@@ -31,7 +31,7 @@ describe('Tests index', () => {
     beforeEach(() => {
         mockS3PutObject.mockReset();
         mockDynamoDBPut.mockReset();
-        process.env.IMAGE_BUCKET_NAME = 'vimagemore_test_bucket';
+        process.env.BUCKET_NAME = 'test_bucket';
         process.env.IMAGE_TABLE_NAME = 'Image';
         process.env.IMAGE_TAG_TABLE_NAME = 'ImageTag';
     });
@@ -125,7 +125,7 @@ describe('Tests index', () => {
             ])
             expect(mockS3PutObject.mock.calls).toEqual([
                 [{
-                    Bucket: 'vimagemore_test_bucket',
+                    Bucket: 'test_bucket',
                     Key: 'images/test_id.png',
                     ContentType: 'image/png',
                     Body: image,
