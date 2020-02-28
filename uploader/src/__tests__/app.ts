@@ -134,4 +134,6 @@ describe('Tests index', () => {
             ]);
         });
     });
+
+    //TODO 丁寧にやるならConditionalCheckFailedExceptionが返ってくる場合のテストとかも書いたほうが良い気がする
 });
