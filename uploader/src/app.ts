@@ -16,6 +16,7 @@ export async function lambdaHandler (event:any) {
         if (filetype === undefined) {
             throw new Error('filetype is not detected');
         }
+        // json.idにスラッシュが入っているとS3での見え方が微妙なのでハッシュにしたりしても良いかも知れない？
         path = `images/${json.id}.${filetype.ext}`;
         contentType = filetype.mime;
 
@@ -45,6 +46,7 @@ export async function lambdaHandler (event:any) {
                 }).promise(),
             ].concat(
                 // 画像のタグ
+                //XXX 画像の作成に失敗するとこれは不整合につながるので、直列にしたい
                 json.tags.map(tag => {
                     return docClient.update({
                         TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
