@@ -53,13 +53,16 @@ Resources:
           IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
+          CREATE_FEED_TARGET_TABLE_NAME: !Ref CreateFeedTargetTable
       Policies:
         - S3FullAccessPolicy:
             BucketName: !Ref ImageBucket
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref ImageTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref ImageTagTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref CreateFeedTargetTable
   ImageBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -90,6 +93,18 @@ Resources:
           AttributeType: S
       KeySchema:
         - AttributeName: Id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  CreateFeedTargetTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ImageTag
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ImageTag
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
