@@ -64,6 +64,7 @@ describe('Tests index', () => {
             id: 'test_id',
             title: 'test title',
             tags: ['test tag 1', 'test tag 2'],
+            link: 'https://www.example.com/',
             image: image.toString('base64'),
         };
 
@@ -82,6 +83,7 @@ describe('Tests index', () => {
                             Path: 'images/test_id.png',
                             Title: 'test title',
                             Tags: ['test tag 1', 'test tag 2'],
+                            Link: 'https://www.example.com/',
                             CreatedAt: 1482363367,
                             UpdatedAt: 1482363367,
                         },

@@ -10,6 +10,7 @@ axios.post(process.argv[2], {
     id: imageFilePath,
     title: imageFilePath,
     tags: ['test tag 1', 'test tag 2'],
+    link: 'https://www.example.com/',
     image: image.toString('base64'),
 }).then((ret) => {
     console.log('Success', ret);

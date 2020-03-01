@@ -66,6 +66,7 @@ describe('Tests index', () => {
                 }
             };
         });
+        // mockReturnValueOnceを使って書き直したほうがスッキリするかも知れない
         mockDynamoDBQuery.mockImplementation((params) => {
             return {
                 promise() {

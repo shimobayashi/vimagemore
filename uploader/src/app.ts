@@ -6,6 +6,7 @@ export async function lambdaHandler (event:any) {
         id: string;
         title: string;
         tags: string[];
+        link: string | null;
         image: string;
     } = JSON.parse(event.body);
     const image = Buffer.from(json.image, 'base64');
@@ -32,6 +33,7 @@ export async function lambdaHandler (event:any) {
                 Path: path,
                 Title: json.title,
                 Tags: json.tags,
+                Link: json.link,
                 CreatedAt: epoch,
                 UpdatedAt: epoch,
             },
