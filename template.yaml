@@ -79,9 +79,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: UpdatedAt
+          AttributeType: N
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+        - AttributeName: UpdatedAt
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5

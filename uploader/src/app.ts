@@ -51,7 +51,6 @@ export async function lambdaHandler (event:any) {
                     Key: {
                         Id: tag,
                     },
-                    // 新しいtaggedImagesが末尾に追加されていくので、最新順で取得したければImages.reverseみたいな感じで取れるはず
                     UpdateExpression: 'SET Images = list_append(if_not_exists(Images, :emptyList), :taggedImages)',
                     ExpressionAttributeValues: {
                         ':emptyList': [],
