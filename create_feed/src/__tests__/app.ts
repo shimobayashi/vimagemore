@@ -1,9 +1,15 @@
 import * as app from '../app';
 
+const mockS3PutObject = jest.fn();
 const mockDynamoDBScan = jest.fn();
 const mockDynamoDBQuery = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
+        S3: () => {
+            return {
+                putObject: mockS3PutObject,
+            };
+        },
         DynamoDB: {
             DocumentClient: () => {
                 return {
@@ -15,8 +21,16 @@ jest.mock('aws-sdk', () => {
     };
 });
 
+import * as FeedGenerator from '../feedGenerator';
+jest.mock('../feedGenerator', () => {
+    return {
+        generateFeed: jest.fn().mockReturnValueOnce('<xml></xml>'),
+    };
+});
+
 describe('Tests index', () => {
     beforeEach(() => {
+        mockS3PutObject.mockReset();
         mockDynamoDBScan.mockReset();
         mockDynamoDBQuery.mockReset();
         process.env.IMAGE_BUCKET_NAME = 'vimagemore_test_bucket';
@@ -26,6 +40,13 @@ describe('Tests index', () => {
     });
 
     test('verifies successful response', () => {
+        mockS3PutObject.mockImplementation((params) => {
+            return {
+                promise() {
+                    return Promise.resolve();
+                }
+            };
+        });
         mockDynamoDBScan.mockImplementation((params) => {
             return {
                 promise() {
@@ -120,6 +141,39 @@ describe('Tests index', () => {
                         Limit: 50,
                     }
                 ]
+            ]);
+            expect(FeedGenerator.generateFeed).toBeCalledWith(
+                {
+                    Id: 'test tag 1',
+                    Images: ['test image 1', 'test image 2'],
+                },
+                [
+                    {
+                        Id: 'test image 2',
+                        Path: 'images/test_image_2.png',
+                        Title: 'test image 2',
+                        Tags: ['test tag 1'],
+                        CreatedAt: 1482363367,
+                        UpdatedAt: 1482363367,
+                    },
+                    {
+                        Id: 'test image 1',
+                        Path: 'images/test_image_1.png',
+                        Title: 'test image 1',
+                        Tags: ['test tag 1'],
+                        CreatedAt: 1482363367,
+                        UpdatedAt: 1482363367,
+                    },
+                ],
+            );
+            expect(mockS3PutObject.mock.calls).toEqual([
+                [{
+                    Bucket: 'vimagemore_test_bucket',
+                    Key: 'feeds/test tag 1.xml',
+                    ContentType: 'application/xml;charset=UTF-8',
+                    Body: '<xml></xml>',
+                    ACL: 'public-read',
+                }]
             ]);
         });
     });

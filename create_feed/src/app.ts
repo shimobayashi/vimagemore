@@ -1,5 +1,7 @@
 import AWS from 'aws-sdk';
 
+import * as FeedGenerator from './feedGenerator';
+
 export async function lambdaHandler (event:any) {
     const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -22,6 +24,7 @@ export async function lambdaHandler (event:any) {
         /* フィード生成対象となるそれぞれのImageTagに紐付けられたImageを取得し、フィードを生成してS3へ設置する */
         let imageTags = value.Items ? value.Items : [];
 
+        const s3 = new AWS.S3();
         return Promise.all(
             imageTags.map(imageTag => {
                 return docClient.query({
@@ -34,7 +37,14 @@ export async function lambdaHandler (event:any) {
                     Limit: 50,
                 }).promise().then(value => {
                     let images = value.Items ? value.Items : [];
-                    //XXX フィードを生成してS3へ設置するPromiseをreturnする
+                    const feed = FeedGenerator.generateFeed(imageTag, images);
+                    return s3.putObject({
+                        Bucket: process.env.IMAGE_BUCKET_NAME ?? '',
+                        Key: `feeds/${imageTag.Id}.xml`,
+                        ContentType: 'application/xml;charset=UTF-8',
+                        Body: feed,
+                        ACL: 'public-read',
+                    }).promise();
                 });
             })
         );
