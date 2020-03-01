@@ -1,5 +1,5 @@
 {
     "scripts": {
-        "build": "npm --prefix ./uploader run build && sam build"
+        "build": "npm --prefix ./uploader run build && npm --prefix ./create_feed run build && sam build"
     }
 }

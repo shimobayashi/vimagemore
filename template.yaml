@@ -36,6 +36,30 @@ Resources:
             TableName: !Ref ImageTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTagTable
+  CreateFeedFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: create_feed/
+      Handler: dst/app.lambdaHandler
+      Runtime: nodejs12.x
+      Events:
+        CreateFeed:
+          Type: Schedule
+          Properties:
+            Schedule: cron(11 */3 * * ? *)
+      Environment:
+        Variables:
+          IMAGE_BUCKET_NAME: !Ref ImageBucket
+          IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
+          IMAGE_TABLE_NAME: !Ref ImageTable
+          IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref ImageBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ImageTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ImageTagTable
   ImageBucket:
     Type: AWS::S3::Bucket
     Properties:
