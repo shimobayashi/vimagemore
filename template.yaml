@@ -36,6 +36,33 @@ Resources:
             TableName: !Ref ImageTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTagTable
+  CreateFeedFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: create_feed/
+      Handler: dst/app.lambdaHandler
+      Runtime: nodejs12.x
+      Events:
+        CreateFeed:
+          Type: Schedule
+          Properties:
+            Schedule: cron(11 */3 * * ? *)
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref Bucket
+          BUCKET_URL: !GetAtt Bucket.WebsiteURL
+          IMAGE_TABLE_NAME: !Ref ImageTable
+          IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
+          CREATE_FEED_TARGET_TABLE_NAME: !Ref CreateFeedTargetTable
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref Bucket
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageTagTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref CreateFeedTargetTable
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -52,9 +79,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: UpdatedAt
+          AttributeType: N
       KeySchema:
         - AttributeName: Id
           KeyType: HASH
+        - AttributeName: UpdatedAt
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -66,6 +97,18 @@ Resources:
           AttributeType: S
       KeySchema:
         - AttributeName: Id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  CreateFeedTargetTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ImageTag
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ImageTag
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
