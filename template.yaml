@@ -87,8 +87,8 @@ Resources:
         - AttributeName: UpdatedAt
           KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
   ImageTagTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -99,8 +99,8 @@ Resources:
         - AttributeName: Id
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
   CreateFeedTargetTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -111,8 +111,8 @@ Resources:
         - AttributeName: ImageTag
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
