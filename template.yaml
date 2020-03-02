@@ -50,7 +50,7 @@ Resources:
       Environment:
         Variables:
           BUCKET_NAME: !Ref Bucket
-          BUCKET_URL: !GetAtt Bucket.WebsiteURL
+          BUCKET_REGIONAL_DOMAIN_NAME: !GetAtt Bucket.RegionalDomainName
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
           CREATE_FEED_TARGET_TABLE_NAME: !Ref CreateFeedTargetTable

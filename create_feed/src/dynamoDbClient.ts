@@ -9,14 +9,10 @@ const tableName = process.argv[2];
 const docClient = new AWS.DynamoDB.DocumentClient();
 docClient.scan({
     TableName: tableName,
-    // KeyConditionExpression: 'UpdatedAt >= :updatedAt',
-    FilterExpression: 'contains(Id, :images)',
+    FilterExpression: 'contains(:targetTags, Id)',
     ExpressionAttributeValues: {
-        //':updatedAt': 1234,
-        ':images': ['hoge'],
+        ':targetTags': ['タグ1', 'タグ1'],
     },
-    // ScanIndexForward: false,
-    Limit: 50,
 }).promise().then(value => {
     console.log('Success', value);
 }).catch(err => {

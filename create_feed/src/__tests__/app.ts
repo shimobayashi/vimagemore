@@ -2,7 +2,6 @@ import * as app from '../app';
 
 const mockS3PutObject = jest.fn();
 const mockDynamoDBScan = jest.fn();
-const mockDynamoDBQuery = jest.fn();
 jest.mock('aws-sdk', () => {
     return {
         S3: () => {
@@ -14,7 +13,6 @@ jest.mock('aws-sdk', () => {
             DocumentClient: () => {
                 return {
                     scan: mockDynamoDBScan,
-                    query: mockDynamoDBQuery,
                 };
             },
         },
@@ -32,14 +30,14 @@ describe('Tests index', () => {
     beforeEach(() => {
         mockS3PutObject.mockReset();
         mockDynamoDBScan.mockReset();
-        mockDynamoDBQuery.mockReset();
         process.env.BUCKET_NAME = 'vimagemore_test_bucket';
-        process.env.BUCKET_URL = 'http://vimagemore_test_bucket.s3.example.com/';
+        process.env.BUCKET_REGIONAL_DOMAIN_NAME = 'vimagemore_test_bucket.s3.example.com';
         process.env.IMAGE_TABLE_NAME = 'Image';
         process.env.IMAGE_TAG_TABLE_NAME = 'ImageTag';
         process.env.CREATE_FEED_TARGET_TABLE_NAME = 'CreateFeedTarget';
     });
 
+    // jestでタイムアウトするまで待ってるのでなんかミスってる気がする
     test('verifies successful response', () => {
         mockS3PutObject.mockImplementation((params) => {
             return {
@@ -48,6 +46,7 @@ describe('Tests index', () => {
                 }
             };
         });
+        // mockReturnValueOnceを使って書き直したほうがスッキリするかも知れない
         mockDynamoDBScan.mockImplementation((params) => {
             return {
                 promise() {
@@ -62,17 +61,6 @@ describe('Tests index', () => {
                                 ],
                             })
                             break;
-                        }
-                    })
-                }
-            };
-        });
-        // mockReturnValueOnceを使って書き直したほうがスッキリするかも知れない
-        mockDynamoDBQuery.mockImplementation((params) => {
-            return {
-                promise() {
-                    return new Promise((resolve) => {
-                        switch (params.TableName) {
                         case 'ImageTag':
                             resolve({
                                 Items: [
@@ -106,7 +94,7 @@ describe('Tests index', () => {
                             })
                             break;
                         }
-                    });
+                    })
                 }
             };
         });
@@ -121,12 +109,10 @@ describe('Tests index', () => {
                         TableName: 'CreateFeedTarget',
                     },
                 ],
-            ]);
-            expect(mockDynamoDBQuery.mock.calls).toEqual([
                 [
                     {
                         TableName: 'ImageTag',
-                        FilterExpression: 'contains(Id, :targetTags)',
+                        FilterExpression: 'contains(:targetTags, Id)',
                         ExpressionAttributeValues: {
                             ':targetTags': ['test tag 1'],
                         },
@@ -135,17 +121,15 @@ describe('Tests index', () => {
                 [
                     {
                         TableName: 'Image',
-                        FilterExpression: 'contains(Id, :images)',
+                        FilterExpression: 'contains(:images, Id)',
                         ExpressionAttributeValues: {
                             ':images': ['test image 1', 'test image 2'],
                         },
-                        ScanIndexForward: false,
-                        Limit: 50,
                     }
                 ]
             ]);
             expect(FeedGenerator.generateFeed).toBeCalledWith(
-                'http://vimagemore_test_bucket.s3.example.com/',
+                'vimagemore_test_bucket.s3.example.com',
                 {
                     Id: 'test tag 1',
                     Images: ['test image 1', 'test image 2'],

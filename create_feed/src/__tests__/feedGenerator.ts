@@ -2,7 +2,7 @@ import * as FeedGenerator from '../feedGenerator';
 
 test('フィードを期待通りに生成できる', () => {
     const feed = FeedGenerator.generateFeed(
-        'https://www.example.com/',
+        'www.example.com',
         {
             Id: 'test tag 1',
         },

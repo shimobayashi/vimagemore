@@ -2,6 +2,7 @@ import AWS from 'aws-sdk';
 
 import * as FeedGenerator from './feedGenerator';
 
+// scanしまくってて最悪なのでなんとかしたい https://github.com/shimobayashi/vimagemore/issues/4
 export async function lambdaHandler (event:any) {
     const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -13,9 +14,9 @@ export async function lambdaHandler (event:any) {
             return createFeedTarget.ImageTag + '';
         }) : [];
 
-        return docClient.query({
+        return docClient.scan({
             TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
-            FilterExpression: 'contains(Id, :targetTags)',
+            FilterExpression: 'contains(:targetTags, Id)',
             ExpressionAttributeValues: {
                 ':targetTags': targetTags,
             },
@@ -27,17 +28,18 @@ export async function lambdaHandler (event:any) {
         const s3 = new AWS.S3();
         return Promise.all(
             imageTags.map(imageTag => {
-                return docClient.query({
+                return docClient.scan({
                     TableName: process.env.IMAGE_TABLE_NAME ?? '',
-                    FilterExpression: 'contains(Id, :images)',
+                    FilterExpression: 'contains(:images, Id)',
                     ExpressionAttributeValues: {
                         ':images': imageTag.Images,
                     },
-                    ScanIndexForward: false,
-                    Limit: 50,
                 }).promise().then(value => {
-                    let images = value.Items ? value.Items : [];
-                    const feed = FeedGenerator.generateFeed(process.env.BUCKET_URL ?? '', imageTag, images);
+                    let images = value.Items ? value.Items.sort((a, b) => {
+                        // UpdatedAtで降順に並べる
+                        return b.UpdatedAt - a.UpdatedAt;
+                    }) : [];
+                    const feed = FeedGenerator.generateFeed(process.env.BUCKET_REGIONAL_DOMAIN_NAME ?? '', imageTag, images);
                     return s3.putObject({
                         Bucket: process.env.BUCKET_NAME ?? '',
                         Key: `feeds/${imageTag.Id}.xml`,
