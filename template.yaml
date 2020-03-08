@@ -79,13 +79,10 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
-        - AttributeName: UpdatedAt
-          AttributeType: N
       KeySchema:
+        # UpdatedAtを追加したりするとIdがほぼ重複しなくなってしまうので注意
         - AttributeName: Id
           KeyType: HASH
-        - AttributeName: UpdatedAt
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
