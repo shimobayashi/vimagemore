@@ -7,9 +7,9 @@ import fs from 'fs';
 const imageFilePath = process.argv[3];
 const image = fs.readFileSync(imageFilePath);
 axios.post(process.argv[2], {
-    id: imageFilePath,
+    id: imageFilePath, // 手抜きでimageFilePathそのまま送ってるけど、そういうことをするとS3に配置された時に.png.pngとかになってしまうのでやめて欲しい。uuid short的なものを入れるのが良さそう
     title: imageFilePath,
-    tags: ['test tag 1', 'test tag 2'],
+    tags: ['タグ1', 'タグ2'],
     link: 'https://www.example.com/',
     image: image.toString('base64'),
 }).then((ret) => {

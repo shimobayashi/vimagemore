@@ -25,13 +25,13 @@ Resources:
             Method: post
       Environment:
         Variables:
-          IMAGE_BUCKET_NAME: !Ref ImageBucket
-          IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
+          BUCKET_NAME: !Ref Bucket
+          BUCKET_URL: !GetAtt Bucket.WebsiteURL
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
       Policies:
         - S3FullAccessPolicy:
-            BucketName: !Ref ImageBucket
+            BucketName: !Ref Bucket
         - DynamoDBCrudPolicy:
             TableName: !Ref ImageTable
         - DynamoDBCrudPolicy:
@@ -49,21 +49,21 @@ Resources:
             Schedule: cron(11 */3 * * ? *)
       Environment:
         Variables:
-          IMAGE_BUCKET_NAME: !Ref ImageBucket
-          IMAGE_BUCKET_URL: !GetAtt ImageBucket.WebsiteURL
+          BUCKET_NAME: !Ref Bucket
+          BUCKET_REGIONAL_DOMAIN_NAME: !GetAtt Bucket.RegionalDomainName
           IMAGE_TABLE_NAME: !Ref ImageTable
           IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
           CREATE_FEED_TARGET_TABLE_NAME: !Ref CreateFeedTargetTable
       Policies:
         - S3FullAccessPolicy:
-            BucketName: !Ref ImageBucket
+            BucketName: !Ref Bucket
         - DynamoDBReadPolicy:
             TableName: !Ref ImageTable
         - DynamoDBReadPolicy:
             TableName: !Ref ImageTagTable
         - DynamoDBReadPolicy:
             TableName: !Ref CreateFeedTargetTable
-  ImageBucket:
+  Bucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: LogDeliveryWrite # ログの出力先も兼ねたりするため、個別にACLでpublic-readを付与する想定
@@ -79,16 +79,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
-        - AttributeName: UpdatedAt
-          AttributeType: N
       KeySchema:
+        # UpdatedAtを追加したりするとIdがほぼ重複しなくなってしまうので注意
         - AttributeName: Id
           KeyType: HASH
-        - AttributeName: UpdatedAt
-          KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
   ImageTagTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -99,8 +96,8 @@ Resources:
         - AttributeName: Id
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
   CreateFeedTargetTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -111,8 +108,8 @@ Resources:
         - AttributeName: ImageTag
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

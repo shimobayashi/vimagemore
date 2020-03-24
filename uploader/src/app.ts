@@ -67,7 +67,7 @@ export async function lambdaHandler (event:any) {
         // 参考: https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/nodejs-prog-model-handler.html#nodejs-handler-async
         // 参考: https://github.com/shimobayashi/vimage/blob/master/vimage.rb#L59
         const params:AWS.S3.Types.PutObjectRequest = {
-            Bucket: process.env.IMAGE_BUCKET_NAME ?? '',
+            Bucket: process.env.BUCKET_NAME ?? '',
             Key: path,
             ContentType: contentType,
             Body: image,
