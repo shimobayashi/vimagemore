@@ -10,7 +10,7 @@ export async function lambdaHandler (event:any) {
         TableName: process.env.CREATE_FEED_TARGET_TABLE_NAME ?? '',
     }).promise().then(value => {
         /* フィード生成対象となるImageTagを取得する */
-        let targetTags = value.Items ? value.Items.map((createFeedTarget) => {
+        const targetTags = value.Items ? value.Items.map((createFeedTarget) => {
             return createFeedTarget.ImageTag + '';
         }) : [];
 
@@ -23,7 +23,7 @@ export async function lambdaHandler (event:any) {
         }).promise();
     }).then(value => {
         /* フィード生成対象となるそれぞれのImageTagに紐付けられたImageを取得し、フィードを生成してS3へ設置する */
-        let imageTags = value.Items ? value.Items : [];
+        const imageTags = value.Items ? value.Items : [];
 
         const s3 = new AWS.S3();
         return Promise.all(
