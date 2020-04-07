@@ -41,6 +41,9 @@ export async function lambdaHandler (event:any) {
                         ExpressionAttributeValues: {
                             ':expiredImages': expiredImages.map(expiredImage => {
                                 return expiredImage.Id;
+                            }).filter(expiredImageId => {
+                                // 関係ないImageまで消そうとするのは無駄なので事前にフィルタリングする
+                                return imageTag.Images.includes(expiredImageId);
                             }),
                         },
                         ReturnValues: 'NONE',

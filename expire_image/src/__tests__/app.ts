@@ -127,7 +127,7 @@ describe('Tests index', () => {
                         },
                         UpdateExpression: 'DELETE Images :expiredImages',
                         ExpressionAttributeValues: {
-                            ':expiredImages': ['test image 1', 'test image 2'],
+                            ':expiredImages': ['test image 1'],
                         },
                         ReturnValues: 'NONE',
                     },
