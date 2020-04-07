@@ -44,10 +44,12 @@ describe('Tests index', () => {
                     return Promise.resolve({
                         Items: [
                             {
+                                // test tag 1に属している
                                 Id: 'test image 1',
                                 Path: 'test path 1',
                             },
                             {
+                                // どのImageTagにも属していない
                                 Id: 'test image 2',
                                 Path: 'test path 2',
                             },
@@ -63,9 +65,11 @@ describe('Tests index', () => {
                         Items: [
                             {
                                 Id: 'test tag 1',
+                                Images: ['test image 1'],
                             },
                             {
                                 Id: 'test tag 2',
+                                Images: [],
                             },
                         ],
                     });
@@ -120,19 +124,6 @@ describe('Tests index', () => {
                         TableName: 'ImageTag',
                         Key: {
                             Id: 'test tag 1',
-                        },
-                        UpdateExpression: 'DELETE Images :expiredImages',
-                        ExpressionAttributeValues: {
-                            ':expiredImages': ['test image 1', 'test image 2'],
-                        },
-                        ReturnValues: 'NONE',
-                    },
-                ],
-                [
-                    {
-                        TableName: 'ImageTag',
-                        Key: {
-                            Id: 'test tag 2',
                         },
                         UpdateExpression: 'DELETE Images :expiredImages',
                         ExpressionAttributeValues: {

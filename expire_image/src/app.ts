@@ -26,7 +26,12 @@ export async function lambdaHandler (event:any) {
 
             // すべてのImageTagから古くなっているImageのIdを削除して回る
             return Promise.all(
-                imageTags.map(imageTag => {
+                // すべてにImageTagへDELETEを発行すると遅すぎるので事前に今回expireしたImageを持っているImageTagのみに絞り込む
+                imageTags.filter(imageTag => {
+                    return expiredImages.some(expiredImage => {
+                        return imageTag.Images.includes(expiredImage.Id);
+                    });
+                }).map(imageTag => {
                     return docClient.update({
                         TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
                         Key: {
