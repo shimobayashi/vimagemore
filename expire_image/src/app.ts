@@ -4,6 +4,7 @@ export async function lambdaHandler (event:any) {
     const docClient = new AWS.DynamoDB.DocumentClient();
 
     /* 古くなっているImageを取得する */
+    console.log('Scan expired Image');
     // 最後の更新から14日経過したImageはExpireしたものとする
     const expireUpdatedAt = Math.floor(Date.now() / 1000) - (14 * (24 * 60 * 60));
     return docClient.scan({
@@ -14,6 +15,7 @@ export async function lambdaHandler (event:any) {
         },
     }).promise().then(value => {
         /* ImageTagから古くなっているImageの登録を削除する */
+        console.log('Delete Image at ImageTag');
         const expiredImages = value.Items ? value.Items : [];
 
         // 雑にすべてのImageTagを取得する(雑すぎる！)
@@ -42,6 +44,7 @@ export async function lambdaHandler (event:any) {
             );
         }).then(() => {
             /* 画像データの実体を消す */
+            console.log('Delete Image at S3');
             const s3 = new AWS.S3();
             const params:AWS.S3.Types.DeleteObjectsRequest = {
                 Bucket: process.env.BUCKET_NAME ?? '',
@@ -56,6 +59,7 @@ export async function lambdaHandler (event:any) {
             return s3.deleteObjects(params).promise();
         }).then(() => {
             /* Image自身を消す */
+            console.log('Delete Image at DynamoDB');
             return Promise.all(
                 expiredImages.map(expiredImage => {
                     return docClient.delete({
