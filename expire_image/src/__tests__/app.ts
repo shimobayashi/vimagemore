@@ -65,11 +65,11 @@ describe('Tests index', () => {
                         Items: [
                             {
                                 Id: 'test tag 1',
-                                Images: ['test image 1'],
+                                Images: ['unexist test image', 'test image 1'],
                             },
                             {
                                 Id: 'test tag 2',
-                                Images: [],
+                                Images: ['unexist test image'],
                             },
                         ],
                     });
@@ -125,10 +125,7 @@ describe('Tests index', () => {
                         Key: {
                             Id: 'test tag 1',
                         },
-                        UpdateExpression: 'DELETE Images :expiredImages',
-                        ExpressionAttributeValues: {
-                            ':expiredImages': ['test image 1'],
-                        },
+                        UpdateExpression: 'REMOVE Images[1]',
                         ReturnValues: 'NONE',
                     },
                 ],
