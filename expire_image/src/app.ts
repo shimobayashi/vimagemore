@@ -22,6 +22,11 @@ export async function lambdaHandler (event:any) {
         expiredImages.splice(100);
         console.log(`Target expiredImages.length: ${expiredImages.length}`);
 
+        // そもそもexpiredImagesが無いならここでやるべき処理は無いはず
+        if (expiredImages.length === 0) {
+            return undefined; // ちゃんと理解できてないけどundefinedを返すとPromiseチェインが中断されるっぽい
+        }
+
         // 雑にすべてのImageTagを取得する(雑すぎる！)
         return docClient.scan({
             TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',

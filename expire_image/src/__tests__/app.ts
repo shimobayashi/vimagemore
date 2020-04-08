@@ -167,4 +167,41 @@ describe('Tests index', () => {
             ]);
         });
     });
+
+    test('expiredImageがなかった場合', () => {
+        mockDynamoDBScan.mockImplementationOnce(params => {
+            // 古くなっているImageたち
+            return {
+                promise() {
+                    return Promise.resolve({
+                        Items: [
+                        ],
+                    });
+                }
+            };
+        });
+
+        return app.lambdaHandler({}).then(response => {
+            expect(response).toEqual({
+                statusCode: 200,
+            });
+            expect(mockDynamoDBScan.mock.calls).toEqual([
+                [
+                    {
+                        TableName: 'Image',
+                        FilterExpression: 'UpdatedAt <= :expireUpdatedAt',
+                        ExpressionAttributeValues: {
+                            ':expireUpdatedAt': 1482363367 - (14 * (24 * 60 * 60)),
+                        },
+                    },
+                ],
+            ]);
+            expect(mockDynamoDBUpdate.mock.calls).toEqual([
+            ]);
+            expect(mockS3DeleteObjects.mock.calls).toEqual([
+            ]);
+            expect(mockDynamoDBDelete.mock.calls).toEqual([
+            ]);
+        });
+    });
 });
