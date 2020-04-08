@@ -26,14 +26,13 @@ export async function lambdaHandler (event:any) {
 
             // すべてのImageTagから古くなっているImageのIdを削除して回る
             return Promise.all(
-                // すべてにImageTagへDELETEを発行すると遅すぎるので事前に今回expireしたImageを持っているImageTagのみに絞り込む
                 imageTags.filter(imageTag => {
                     return expiredImages.some(expiredImage => {
                         return imageTag.Images.includes(expiredImage.Id);
                     });
                 }).map(imageTag => {
-                    // REMOVE式を頑張って組み立てる
-                    const expression = 'REMOVE ' + expiredImages.map(expiredImage => {
+                    /* REMOVE式を頑張って組み立てる */
+                    const allPartialExpressions = expiredImages.map(expiredImage => {
                         return expiredImage.Id;
                     }).map(expiredImageId => {
                         // ImageTag.Imagesにおけるインデックスに変換する
@@ -44,16 +43,27 @@ export async function lambdaHandler (event:any) {
                     }).map(index => {
                         // REMOVE式の一部として正しい形にする
                         return `Images[${index}]`;
-                    }).join(', ');
+                    });
+                    // 1つのREMOVE式にすべて詰め込もうとするとExpression size has exceeded the maximum allowed sizeとかいって怒られるので頑張って分割する
+                    // 参考: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-expression-parameters
+                    let expressions = [];
+                    while(allPartialExpressions.length > 0) {
+                        const partialExpressions = allPartialExpressions.splice(0, 100); // 適当に100個ずつ分割する
+                        expressions.push('REMOVE ' + partialExpressions.join(', '));
+                    }
 
-                    return docClient.update({
-                        TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
-                        Key: {
-                            Id: imageTag.Id,
-                        },
-                        UpdateExpression: expression,
-                        ReturnValues: 'NONE',
-                    }).promise();
+                    return Promise.all(
+                        expressions.map(expression => {
+                            return docClient.update({
+                                TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
+                                Key: {
+                                    Id: imageTag.Id,
+                                },
+                                UpdateExpression: expression,
+                                ReturnValues: 'NONE',
+                            }).promise();
+                        })
+                    )
                 })
             );
         }).then(() => {
