@@ -8,7 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 60
+    Timeout: 900
 
 Resources:
   UploaderFunction:
@@ -63,6 +63,29 @@ Resources:
             TableName: !Ref ImageTagTable
         - DynamoDBReadPolicy:
             TableName: !Ref CreateFeedTargetTable
+  ExpireImageFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: expire_image/
+      Handler: dst/app.lambdaHandler
+      Runtime: nodejs12.x
+      Events:
+        CreateFeed:
+          Type: Schedule
+          Properties:
+            Schedule: cron(31 4 * * ? *)
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref Bucket
+          IMAGE_TABLE_NAME: !Ref ImageTable
+          IMAGE_TAG_TABLE_NAME: !Ref ImageTagTable
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref Bucket
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageTagTable
   Bucket:
     Type: AWS::S3::Bucket
     Properties:
