@@ -32,20 +32,26 @@ export async function lambdaHandler (event:any) {
                         return imageTag.Images.includes(expiredImage.Id);
                     });
                 }).map(imageTag => {
+                    // REMOVE式を頑張って組み立てる
+                    const expression = 'REMOVE ' + expiredImages.map(expiredImage => {
+                        return expiredImage.Id;
+                    }).map(expiredImageId => {
+                        // ImageTag.Imagesにおけるインデックスに変換する
+                        return imageTag.Images.findIndex((imageId:string) => imageId === expiredImageId);
+                    }).filter(index => {
+                        // 見つからなかったものは-1になっているので取り除く
+                        return index >= 0;
+                    }).map(index => {
+                        // REMOVE式の一部として正しい形にする
+                        return `Images[${index}]`;
+                    }).join(', ');
+
                     return docClient.update({
                         TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
                         Key: {
                             Id: imageTag.Id,
                         },
-                        UpdateExpression: 'DELETE Images :expiredImages',
-                        ExpressionAttributeValues: {
-                            ':expiredImages': expiredImages.map(expiredImage => {
-                                return expiredImage.Id;
-                            }).filter(expiredImageId => {
-                                // 関係ないImageまで消そうとするのは無駄なので事前にフィルタリングする
-                                return imageTag.Images.includes(expiredImageId);
-                            }),
-                        },
+                        UpdateExpression: expression,
                         ReturnValues: 'NONE',
                     }).promise();
                 })
