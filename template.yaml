@@ -82,9 +82,9 @@ Resources:
       Policies:
         - S3FullAccessPolicy:
             BucketName: !Ref Bucket
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref ImageTable
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref ImageTagTable
   Bucket:
     Type: AWS::S3::Bucket
