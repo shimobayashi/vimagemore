@@ -73,7 +73,7 @@ Resources:
         CreateFeed:
           Type: Schedule
           Properties:
-            Schedule: cron(31 4 * * ? *)
+            Schedule: cron(31 * * * ? *)
       Environment:
         Variables:
           BUCKET_NAME: !Ref Bucket
