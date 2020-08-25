@@ -123,7 +123,7 @@ describe('Tests index', () => {
                         TableName: 'Image',
                         FilterExpression: 'contains(:images, Id)',
                         ExpressionAttributeValues: {
-                            ':images': ['test image 1', 'test image 2'],
+                            ':images': ['test image 2', 'test image 1'],
                         },
                     }
                 ]
@@ -132,7 +132,7 @@ describe('Tests index', () => {
                 'vimagemore_test_bucket.s3.example.com',
                 {
                     Id: 'test tag 1',
-                    Images: ['test image 1', 'test image 2'],
+                    Images: ['test image 2', 'test image 1'],
                 },
                 [
                     {

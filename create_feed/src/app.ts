@@ -32,7 +32,10 @@ export async function lambdaHandler (event:any) {
                     TableName: process.env.IMAGE_TABLE_NAME ?? '',
                     FilterExpression: 'contains(:images, Id)',
                     ExpressionAttributeValues: {
-                        ':images': imageTag.Images,
+                        // imageTag.Imagesの末尾に近いものほど新しく追加されたものであるはずなので、
+                        // Imagesが多すぎてscanの上限を超えるような場合はなるべく新しいものが処理対象となるようにreverseしている。
+                        // reverseは破壊的メソッドだが特に破壊されても問題ないという雑なスタンスで処理している。
+                        ':images': imageTag.Images.reverse(),
                     },
                 }).promise().then(value => {
                     let images = value.Items ? value.Items.sort((a, b) => {
