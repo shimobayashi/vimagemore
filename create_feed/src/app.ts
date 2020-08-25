@@ -42,6 +42,8 @@ export async function lambdaHandler (event:any) {
                         // UpdatedAtで降順に並べる
                         return b.UpdatedAt - a.UpdatedAt;
                     }) : [];
+                    console.log('imageTag', imageTag.Id);
+                    console.log('images.length', images.length);
                     const feed = FeedGenerator.generateFeed(process.env.BUCKET_REGIONAL_DOMAIN_NAME ?? '', imageTag, images);
                     return s3.putObject({
                         Bucket: process.env.BUCKET_NAME ?? '',
