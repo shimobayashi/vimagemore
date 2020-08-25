@@ -13,6 +13,7 @@ export async function lambdaHandler (event:any) {
         const targetTags = value.Items ? value.Items.map((createFeedTarget) => {
             return createFeedTarget.ImageTag + '';
         }) : [];
+        console.log('targetTags', targetTags.join(', '));
 
         return docClient.scan({
             TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
@@ -28,6 +29,8 @@ export async function lambdaHandler (event:any) {
         const s3 = new AWS.S3();
         return Promise.all(
             imageTags.map(imageTag => {
+                console.log('scan');
+                console.log('imageTag', imageTag.Id);
                 return docClient.scan({
                     TableName: process.env.IMAGE_TABLE_NAME ?? '',
                     FilterExpression: 'contains(:images, Id)',
@@ -42,6 +45,7 @@ export async function lambdaHandler (event:any) {
                         // UpdatedAtで降順に並べる
                         return b.UpdatedAt - a.UpdatedAt;
                     }) : [];
+                    console.log('putObject');
                     console.log('imageTag', imageTag.Id);
                     console.log('images.length', images.length);
                     const feed = FeedGenerator.generateFeed(process.env.BUCKET_REGIONAL_DOMAIN_NAME ?? '', imageTag, images);
