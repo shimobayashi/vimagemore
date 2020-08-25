@@ -5,8 +5,8 @@ export async function lambdaHandler (event:any) {
 
     /* 古くなっているImageを取得する */
     console.log('Scan expired Image');
-    // 最後の更新から14日経過したImageはExpireしたものとする
-    const expireUpdatedAt = Math.floor(Date.now() / 1000) - (14 * (24 * 60 * 60));
+    // 最後の更新から7日経過したImageはExpireしたものとする
+    const expireUpdatedAt = Math.floor(Date.now() / 1000) - (7 * (24 * 60 * 60));
     return docClient.scan({
         TableName: process.env.IMAGE_TABLE_NAME ?? '',
         FilterExpression: 'UpdatedAt <= :expireUpdatedAt',

@@ -108,7 +108,7 @@ describe('Tests index', () => {
                         TableName: 'Image',
                         FilterExpression: 'UpdatedAt <= :expireUpdatedAt',
                         ExpressionAttributeValues: {
-                            ':expireUpdatedAt': 1482363367 - (14 * (24 * 60 * 60)),
+                            ':expireUpdatedAt': 1482363367 - (7 * (24 * 60 * 60)),
                         },
                     },
                 ],
@@ -191,7 +191,7 @@ describe('Tests index', () => {
                         TableName: 'Image',
                         FilterExpression: 'UpdatedAt <= :expireUpdatedAt',
                         ExpressionAttributeValues: {
-                            ':expireUpdatedAt': 1482363367 - (14 * (24 * 60 * 60)),
+                            ':expireUpdatedAt': 1482363367 - (7 * (24 * 60 * 60)),
                         },
                     },
                 ],
