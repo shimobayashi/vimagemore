@@ -25,6 +25,7 @@ export async function lambdaHandler (event:any) {
     }).then(value => {
         /* フィード生成対象となるそれぞれのImageTagに紐付けられたImageを取得し、フィードを生成してS3へ設置する */
         const imageTags = value.Items ? value.Items : [];
+        console.log('imageTags', imageTags.map(e => e.Id).join(', '));
 
         const s3 = new AWS.S3();
         return Promise.all(
