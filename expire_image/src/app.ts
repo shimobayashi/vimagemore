@@ -19,7 +19,7 @@ export async function lambdaHandler (event:any) {
         let expiredImages = value.Items ? value.Items : [];
         // 一度に大量の画像を消そうとするとDynamoDBまわりでThe level of configured provisioned throughput for the table was exceeded.ということになってしまうので、100個ずつ消すことにする
         // 本当は一気に全部消したほうが良いと思う
-        expiredImages.splice(100);
+        expiredImages = expiredImages.splice(0, 100);
         console.log(`Target expiredImages.length: ${expiredImages.length}`);
 
         // そもそもexpiredImagesが無いならここでやるべき処理は無いはず
