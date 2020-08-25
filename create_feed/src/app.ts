@@ -15,16 +15,31 @@ export async function lambdaHandler (event:any) {
         }) : [];
         console.log('targetTags', targetTags.join(', '));
 
-        return docClient.scan({
-            TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
-            FilterExpression: 'contains(:targetTags, Id)',
-            ExpressionAttributeValues: {
-                ':targetTags': targetTags,
-            },
-        }).promise();
-    }).then(value => {
+        return Promise.all(
+            targetTags.map(targetTag => {
+                return docClient.query({
+                    TableName: process.env.IMAGE_TAG_TABLE_NAME ?? '',
+                    KeyConditionExpression: 'Id = :targetTag',
+                    ExpressionAttributeValues: {
+                        ':targetTag': targetTag,
+                    },
+                }).promise();
+            })
+        );
+    }).then(values => {
         /* フィード生成対象となるそれぞれのImageTagに紐付けられたImageを取得し、フィードを生成してS3へ設置する */
-        const imageTags = value.Items ? value.Items : [];
+        let imageTags = [];
+        for (const value of values) {
+            if (value.Items) {
+                imageTags.push(value.Items[0]);
+            }
+        }
+
+        values.map(e => {
+            return e.Items? e.Items[0] : null;
+        }).filter(e => {
+            return e !== null;
+        });
         console.log('imageTags', imageTags.map(e => e.Id).join(', '));
 
         const s3 = new AWS.S3();

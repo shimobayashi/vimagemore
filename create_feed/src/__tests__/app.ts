@@ -13,6 +13,7 @@ jest.mock('aws-sdk', () => {
             DocumentClient: () => {
                 return {
                     scan: mockDynamoDBScan,
+                    query: mockDynamoDBScan, // 雑
                 };
             },
         },
@@ -112,9 +113,9 @@ describe('Tests index', () => {
                 [
                     {
                         TableName: 'ImageTag',
-                        FilterExpression: 'contains(:targetTags, Id)',
+                        KeyConditionExpression: 'Id = :targetTag',
                         ExpressionAttributeValues: {
-                            ':targetTags': ['test tag 1'],
+                            ':targetTag': 'test tag 1',
                         },
                     },
                 ],
