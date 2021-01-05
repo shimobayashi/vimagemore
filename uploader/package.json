@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/jest": "^25.1.2",
     "@types/node": "^13.7.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "jest": "^25.1.0",
     "ts-jest": "^25.2.0",
     "ts-node": "^8.6.2",
