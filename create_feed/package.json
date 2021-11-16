@@ -6,7 +6,7 @@
   "author": "shimobayashi",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.619.0",
+    "aws-sdk": "^2.814.0",
     "feed": "^4.1.0"
   },
   "scripts": {
